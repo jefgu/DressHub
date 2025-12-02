@@ -6,12 +6,14 @@ import { Item } from "../models/Item";
 const router = express.Router();
 
 const searchItemsSchema = z.object({
-  query: z.string().optional(),
-  category: z.string().optional(),
-  size: z.string().optional(),
-  genderTarget: z.string().optional(),
-  minPrice: z.string().optional(),
-  maxPrice: z.string().optional(),
+  query: z.object({
+    query: z.string().optional(),
+    category: z.string().optional(),
+    size: z.string().optional(),
+    genderTarget: z.string().optional(),
+    minPrice: z.string().optional(),
+    maxPrice: z.string().optional(),
+  }),
 });
 
 router.get("/", validate(searchItemsSchema), async (req, res) => {
@@ -37,6 +39,19 @@ router.get("/", validate(searchItemsSchema), async (req, res) => {
 
   const items = await Item.find(q).limit(50);
   res.json(items);
+});
+
+// Get single item by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const item = await Item.findById(req.params.id);
+    if (!item) {
+      return res.status(404).json({ error: "Item not found" });
+    }
+    res.json(item);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch item" });
+  }
 });
 
 export default router;

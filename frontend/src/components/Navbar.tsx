@@ -1,0 +1,98 @@
+import { AppBar, Toolbar, Typography, Button, IconButton, Badge, Box } from "@mui/material";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import PersonIcon from "@mui/icons-material/Person";
+import HomeIcon from "@mui/icons-material/Home";
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axiosClient from "../api/axiosClient";
+
+export default function Navbar() {
+  const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // Check auth status and cart count
+    const checkAuth = async () => {
+      try {
+        await axiosClient.get("/users/me");
+        setIsAuthenticated(true);
+        
+        // Fetch cart count
+        const cartRes = await axiosClient.get("/cart");
+        setCartCount(cartRes.data?.length || 0);
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await axiosClient.post("/users/logout");
+      setIsAuthenticated(false);
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed", error);
+    }
+  };
+
+  return (
+    <AppBar position="sticky" sx={{ backgroundColor: "#1976d2" }}>
+      <Toolbar>
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1, cursor: "pointer", fontWeight: 700 }}
+          onClick={() => navigate("/")}
+        >
+          DressHub
+        </Typography>
+
+        <Box display="flex" gap={1} alignItems="center">
+          <IconButton color="inherit" onClick={() => navigate("/")}>
+            <HomeIcon />
+          </IconButton>
+
+          {isAuthenticated ? (
+            <>
+              <IconButton color="inherit" onClick={() => navigate("/wishlist")}>
+                <FavoriteIcon />
+              </IconButton>
+
+              <IconButton color="inherit" onClick={() => navigate("/cart")}>
+                <Badge badgeContent={cartCount} color="error">
+                  <ShoppingCartIcon />
+                </Badge>
+              </IconButton>
+
+              <IconButton color="inherit" onClick={() => navigate("/returns")}>
+                <AssignmentReturnIcon />
+              </IconButton>
+
+              <IconButton color="inherit" onClick={() => navigate("/profile")}>
+                <PersonIcon />
+              </IconButton>
+
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button color="inherit" onClick={() => navigate("/login")}>
+                Login
+              </Button>
+              <Button color="inherit" onClick={() => navigate("/signup")}>
+                Sign Up
+              </Button>
+            </>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+}
+

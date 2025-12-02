@@ -39,4 +39,21 @@ router.get("/", async (req, res) => {
   res.json(cartItems);
 });
 
+router.delete("/:cartItemId", async (req, res) => {
+  const userId = (req as any).userId;
+  const { cartItemId } = req.params;
+  
+  const cartItem = await CartItem.findOneAndDelete({ 
+    _id: cartItemId, 
+    user: userId,
+    checkedOut: false 
+  });
+  
+  if (!cartItem) {
+    return res.status(404).json({ error: "Cart item not found" });
+  }
+  
+  res.status(204).send();
+});
+
 export default router;

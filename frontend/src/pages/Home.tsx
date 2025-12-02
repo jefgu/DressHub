@@ -17,22 +17,50 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [size, setSize] = useState("");
+  const [genderTarget, setGenderTarget] = useState("");
   const [items, setItems] = useState<Item[]>([]);
+  const [wishlistItemIds, setWishlistItemIds] = useState<Set<string>>(new Set());
+
+  const fetchWishlist = async () => {
+    try {
+      const res = await axiosClient.get("/wishlist");
+      const itemIds = new Set<string>(
+        res.data.map((wi: any) => wi.item?._id).filter((id: any): id is string => Boolean(id))
+      );
+      setWishlistItemIds(itemIds);
+    } catch (error) {
+      // User not authenticated or error fetching wishlist
+      setWishlistItemIds(new Set());
+    }
+  };
 
   const fetchItems = async () => {
     const res = await axiosClient.get("/items", {
-      params: { query, category, size },
+      params: { query, category, size, genderTarget },
     });
     setItems(res.data);
   };
 
   useEffect(() => {
     fetchItems();
+    fetchWishlist();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = () => {
     fetchItems();
+  };
+
+  const handleWishlistToggle = (itemId: string, isWishlisted: boolean) => {
+    setWishlistItemIds(prev => {
+      const newSet = new Set(prev);
+      if (isWishlisted) {
+        newSet.add(itemId);
+      } else {
+        newSet.delete(itemId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -57,6 +85,18 @@ export default function Home() {
           <MenuItem value="jacket">Jacket</MenuItem>
         </TextField>
         <TextField
+          select
+          label="Gender"
+          value={genderTarget}
+          onChange={(e) => setGenderTarget(e.target.value)}
+          sx={{ minWidth: 140 }}
+        >
+          <MenuItem value="">All</MenuItem>
+          <MenuItem value="male">Male</MenuItem>
+          <MenuItem value="female">Female</MenuItem>
+          <MenuItem value="unisex">Unisex</MenuItem>
+        </TextField>
+        <TextField
           label="Size"
           value={size}
           onChange={(e) => setSize(e.target.value)}
@@ -70,7 +110,11 @@ export default function Home() {
       <Grid container spacing={2}>
         {items.map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
-            <ItemCard item={item} />
+            <ItemCard 
+              item={item} 
+              isWishlisted={wishlistItemIds.has(item._id)}
+              onWishlistToggle={handleWishlistToggle}
+            />
           </Grid>
         ))}
       </Grid>
