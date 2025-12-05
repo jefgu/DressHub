@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient.ts";
-import { TextField, Box, MenuItem, Button } from "@mui/material";
+import { TextField, Box, MenuItem, Button, Paper } from "@mui/material";
 import Grid from "@mui/material/GridLegacy";
 import ItemCard from "../components/ItemCard.tsx";
 
@@ -69,50 +69,59 @@ export default function Home() {
   };
 
   return (
-    <Box className="p-4">
-      <Box display="flex" gap={2} mb={3} className="flex-wrap">
-        <TextField
-          label="Search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          fullWidth
-        />
-        <TextField
-          select
-          label="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          sx={{ minWidth: 160 }}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="dress">Dress</MenuItem>
-          <MenuItem value="suit">Suit</MenuItem>
-          <MenuItem value="jacket">Jacket</MenuItem>
-        </TextField>
-        <TextField
-          select
-          label="Gender"
-          value={genderTarget}
-          onChange={(e) => setGenderTarget(e.target.value)}
-          sx={{ minWidth: 140 }}
-        >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="male">Male</MenuItem>
-          <MenuItem value="female">Female</MenuItem>
-          <MenuItem value="unisex">Unisex</MenuItem>
-        </TextField>
-        <TextField
-          label="Size"
-          value={size}
-          onChange={(e) => setSize(e.target.value)}
-          sx={{ minWidth: 120 }}
-        />
-        <Button variant="contained" onClick={handleSearch}>
-          Search
-        </Button>
+    <Box>
+      {/* Search + Filters Panel */}
+      <Box mb={3}>
+        <Paper elevation={2} sx={{ p: 2 }}>
+          <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
+            <TextField
+              label="Search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              sx={{ flex: 1, minWidth: 200 }}
+            />
+
+            <TextField
+              select
+              label="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              sx={{ minWidth: 160 }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="dress">Dress</MenuItem>
+              <MenuItem value="suit">Suit</MenuItem>
+              <MenuItem value="jacket">Jacket</MenuItem>
+            </TextField>
+
+            <TextField
+              select
+              label="Gender"
+              value={genderTarget}
+              onChange={(e) => setGenderTarget(e.target.value)}
+              sx={{ minWidth: 140 }}
+            >
+              <MenuItem value="">All</MenuItem>
+              <MenuItem value="male">Male</MenuItem>
+              <MenuItem value="female">Female</MenuItem>
+              <MenuItem value="unisex">Unisex</MenuItem>
+            </TextField>
+
+            <TextField
+              label="Size"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+              sx={{ minWidth: 120 }}
+            />
+
+            <Button variant="contained" onClick={handleSearch} sx={{ height: 40 }}>
+              Search
+            </Button>
+          </Box>
+        </Paper>
       </Box>
 
-      <Grid container spacing={2}>
+      <Grid container spacing={3}>
         {items.map((item) => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
             <ItemCard 
