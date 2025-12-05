@@ -41,51 +41,51 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="sticky" elevation={2} sx={{ backgroundColor: "#ffffff", color: "text.primary" }}>
-      <Toolbar sx={{ gap: 2 }}>
+    <AppBar position="sticky" sx={{ backgroundColor: "#1976d2" }}>
+      <Toolbar>
         <Typography
           variant="h6"
-          sx={{ flexGrow: 1, cursor: "pointer", fontWeight: 700, color: "text.primary" }}
+          sx={{ flexGrow: 1, cursor: "pointer", fontWeight: 700 }}
           onClick={() => navigate("/")}
         >
           DressHub
         </Typography>
 
         <Box display="flex" gap={1} alignItems="center">
-          <IconButton aria-label="home" onClick={() => navigate("/")}> 
+          <IconButton color="inherit" onClick={() => navigate("/")}>
             <HomeIcon />
           </IconButton>
 
           {isAuthenticated ? (
             <>
-              <IconButton aria-label="wishlist" onClick={() => navigate("/wishlist") }>
+              <IconButton color="inherit" onClick={() => navigate("/wishlist")}>
                 <FavoriteIcon />
               </IconButton>
 
-              <IconButton aria-label="cart" onClick={() => navigate("/cart") }>
+              <IconButton color="inherit" onClick={() => navigate("/cart")}>
                 <Badge badgeContent={cartCount} color="error">
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
 
-              <IconButton aria-label="returns" onClick={() => navigate("/returns") }>
+              <IconButton color="inherit" onClick={() => navigate("/returns")}>
                 <AssignmentReturnIcon />
               </IconButton>
 
-              <IconButton aria-label="profile" onClick={() => navigate("/profile") }>
+              <IconButton color="inherit" onClick={() => navigate("/profile")}>
                 <PersonIcon />
               </IconButton>
 
-              <Button color="inherit" onClick={handleLogout} sx={{ ml: 1, textTransform: "none" }}>
+              <Button color="inherit" onClick={handleLogout}>
                 Logout
               </Button>
             </>
           ) : (
             <>
-              <Button color="inherit" onClick={() => navigate("/login")} sx={{ textTransform: "none" }}>
+              <Button color="inherit" onClick={() => navigate("/login")}>
                 Login
               </Button>
-              <Button color="primary" variant="contained" onClick={() => navigate("/signup")} sx={{ ml: 1, textTransform: "none" }}>
+              <Button color="inherit" onClick={() => navigate("/signup")}>
                 Sign Up
               </Button>
             </>

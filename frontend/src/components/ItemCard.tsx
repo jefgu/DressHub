@@ -44,14 +44,8 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
 
   return (
     <Card
+      className="rounded-2xl shadow-md hover:shadow-lg transition cursor-pointer"
       onClick={() => navigate(`/items/${item._id}`)}
-      sx={{
-        borderRadius: 3,
-        boxShadow: 2,
-        transition: "transform 200ms ease, box-shadow 200ms ease",
-        cursor: "pointer",
-        '&:hover': { transform: 'translateY(-6px)', boxShadow: 6 },
-      }}
     >
       <Box position="relative" sx={{ height: "350px", backgroundColor: "#fafafa" }}>
         <CardMedia
@@ -88,13 +82,6 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
           </Box>
         )}
 
-        {/* Price badge */}
-        <Box sx={{ position: 'absolute', top: 8, left: 8 }}>
-          <Box sx={{ backgroundColor: 'rgba(25,118,210,0.95)', color: 'white', px: 1.5, py: 0.5, borderRadius: 1, fontWeight: 700, fontSize: '0.9rem' }}>
-            ${item.dailyPrice.toFixed(0)}/day
-          </Box>
-        </Box>
-
         {/* Wishlist Button */}
         <IconButton
           onClick={toggleWishlist}
@@ -102,8 +89,8 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
             position: "absolute", 
             top: 8, 
             right: 8, 
-            backgroundColor: "rgba(255,255,255,0.9)",
-            '&:hover': { backgroundColor: 'rgba(255,255,255,0.95)' }
+            backgroundColor: "white",
+            "&:hover": { backgroundColor: "white" }
           }}
         >
           {wishlisted ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
@@ -113,7 +100,7 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
         <Typography variant="subtitle1" fontWeight={600} noWrap>
           {item.title}
         </Typography>
-        <Typography variant="body2" color="text.primary" fontWeight={600}>
+        <Typography variant="body2" color="primary" fontWeight={600}>
           ${item.dailyPrice.toFixed(2)} / day
         </Typography>
         {item.depositAmount && (
