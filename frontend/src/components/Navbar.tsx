@@ -3,6 +3,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
+import CheckroomIcon from '@mui/icons-material/Checkroom';
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -54,6 +55,10 @@ export default function Navbar() {
         <Box display="flex" gap={1} alignItems="center">
           <IconButton aria-label="home" onClick={() => navigate("/") }>
             <HomeIcon />
+          </IconButton>
+
+          <IconButton aria-label="upload item" onClick={() => navigate("/upload") }>
+            <CheckroomIcon />
           </IconButton>
 
           {isAuthenticated ? (

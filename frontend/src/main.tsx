@@ -11,6 +11,7 @@ import Cart from './pages/Cart'
 import Wishlist from './pages/Wishlist'
 import Profile from './pages/Profile'
 import Returns from './pages/Returns'
+import Upload from './pages/Upload'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/returns" element={<Returns />} />
+          <Route path="/upload" element={<Upload />} />
         </Route>
       </Routes>
     </BrowserRouter>

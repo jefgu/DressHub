@@ -1,9 +1,25 @@
 import express from "express";
 import { z } from "zod";
+import { authenticate } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { Item } from "../models/Item";
 
 const router = express.Router();
+
+const createItemSchema = z.object({
+  body: z.object({
+    title: z.string().min(1),
+    description: z.string().optional(),
+    category: z.string().optional(),
+    size: z.string().optional(),
+    genderTarget: z.string().optional(),
+    dailyPrice: z.number().positive(),
+    depositAmount: z.number().nonnegative().optional(),
+    condition: z.string().optional(),
+    available: z.boolean().optional(),
+    images: z.array(z.string()).optional(),
+  }),
+});
 
 const searchItemsSchema = z.object({
   query: z.object({
@@ -14,6 +30,20 @@ const searchItemsSchema = z.object({
     minPrice: z.string().optional(),
     maxPrice: z.string().optional(),
   }),
+});
+
+router.post("/", authenticate, validate(createItemSchema), async (req, res) => {
+  try {
+    const userId = (req as any).userId;
+    const newItem = await Item.create({
+      ...((req as any).parsed.body as any),
+      owner: userId,
+    });
+    res.status(201).json(newItem);
+  } catch (error) {
+    console.error("Failed to create item:", error);
+    res.status(500).json({ error: "Failed to create item" });
+  }
 });
 
 router.get("/", validate(searchItemsSchema), async (req, res) => {
