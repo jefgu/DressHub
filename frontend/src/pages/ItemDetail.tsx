@@ -6,6 +6,10 @@ import {
   Typography,
   Button,
   Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -18,6 +22,7 @@ interface Item {
   dailyPrice: number;
   depositAmount?: number;
   available: boolean;
+  owner: string;
   size?: string;
   category?: string;
   genderTarget?: string;
@@ -31,6 +36,9 @@ export default function ItemDetail() {
   const [item, setItem] = useState<Item | null>(null);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [wishlisted, setWishlisted] = useState(false);
   const today = dayjs();
 
   useEffect(() => {
@@ -39,7 +47,26 @@ export default function ItemDetail() {
       const res = await axiosClient.get(`/items/${id}`);
       setItem(res.data);
     };
+    const fetchMe = async () => {
+      try {
+        const res = await axiosClient.get("/users/me");
+        setCurrentUserId(res.data._id || res.data.id || "");
+      } catch {
+        setCurrentUserId("");
+      }
+    };
+    const fetchWishlist = async () => {
+      try {
+        const res = await axiosClient.get("/wishlist");
+        const exists = res.data.some((wi: any) => wi.item?._id === id);
+        setWishlisted(exists);
+      } catch {
+        setWishlisted(false);
+      }
+    };
     fetchItem();
+    fetchMe();
+    fetchWishlist();
   }, [id]);
 
   const handleAddToCart = async () => {
@@ -53,6 +80,29 @@ export default function ItemDetail() {
       navigate("/cart");
     } catch (error) {
       console.error("Error adding to cart:", error);
+      // If unauthorized, show login prompt
+      if ((error as any)?.response?.status === 401) {
+        setShowLoginPrompt(true);
+      }
+    }
+  };
+
+  const handleToggleWishlist = async () => {
+    if (!item) return;
+    try {
+      if (!wishlisted) {
+        await axiosClient.post("/wishlist", { itemId: item._id });
+        setWishlisted(true);
+      } else {
+        await axiosClient.delete(`/wishlist/${item._id}`);
+        setWishlisted(false);
+      }
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        setShowLoginPrompt(true);
+      } else {
+        console.error("Error toggling wishlist:", error);
+      }
     }
   };
 
@@ -67,6 +117,9 @@ export default function ItemDetail() {
   };
 
   if (!item) return null;
+
+  const isOwner = currentUserId && item.owner === currentUserId;
+  const notAvailable = !item.available || isOwner;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -93,37 +146,49 @@ export default function ItemDetail() {
               {item.title}
             </Typography>
             
-            {/* Availability Badge */}
-            <Box mb={2}>
-              {item.available ? (
-                <Box 
-                  sx={{ 
-                    display: "inline-block",
-                    px: 2, 
-                    py: 0.5, 
-                    backgroundColor: "#4caf50", 
-                    color: "white",
-                    borderRadius: 1,
-                    fontWeight: 600,
-                  }}
-                >
-                  ✓ Available
-                </Box>
-              ) : (
-                <Box 
-                  sx={{ 
-                    display: "inline-block",
-                    px: 2, 
-                    py: 0.5, 
-                    backgroundColor: "#f44336", 
-                    color: "white",
-                    borderRadius: 1,
-                    fontWeight: 600,
-                  }}
-                >
-                  Currently Rented
-                </Box>
-              )}
+            <Box display="flex" alignItems="center" gap={2} mb={2}>
+              {/* Availability Badge */}
+              <Box>
+                {!notAvailable ? (
+                  <Box 
+                    sx={{ 
+                      display: "inline-block",
+                      px: 2, 
+                      py: 0.5, 
+                      backgroundColor: "#4caf50", 
+                      color: "white",
+                      borderRadius: 1,
+                      fontWeight: 600,
+                    }}
+                  >
+                    ✓ Available
+                  </Box>
+                ) : (
+                  <Box 
+                    sx={{ 
+                      display: "inline-block",
+                      px: 2, 
+                      py: 0.5, 
+                      backgroundColor: isOwner ? "#ff9800" : "#f44336", 
+                      color: "white",
+                      borderRadius: 1,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {isOwner ? "Your listing" : "Currently Rented"}
+                  </Box>
+                )}
+              </Box>
+
+              {/* Wishlist button */}
+              <Button
+                variant={wishlisted ? "contained" : "outlined"}
+                color="primary"
+                size="small"
+                onClick={handleToggleWishlist}
+              >
+                {wishlisted ? "Wishlisted" : "Add to Wishlist"}
+              </Button>
             </Box>
 
             <Typography variant="h5" color="primary" mb={1}>
@@ -164,18 +229,20 @@ export default function ItemDetail() {
                 Select Rental Period
               </Typography>
 
-              {!item.available && (
+              {notAvailable && (
                 <Box 
                   sx={{ 
                     mb: 2, 
                     p: 2, 
-                    backgroundColor: "#ffebee", 
+                    backgroundColor: isOwner ? "#fff3e0" : "#ffebee", 
                     borderRadius: 2,
-                    border: "1px solid #f44336"
+                    border: isOwner ? "1px solid #ff9800" : "1px solid #f44336"
                   }}
                 >
                   <Typography variant="body2" color="error" fontWeight={600}>
-                    This item is currently rented and unavailable for booking.
+                    {isOwner
+                      ? "You cannot rent your own listing."
+                      : "This item is currently rented and unavailable for booking."}
                   </Typography>
                 </Box>
               )}
@@ -186,7 +253,7 @@ export default function ItemDetail() {
                   value={startDate}
                   onChange={(newValue) => setStartDate(newValue)}
                   minDate={today}
-                  disabled={!item.available}
+                  disabled={notAvailable}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -200,7 +267,7 @@ export default function ItemDetail() {
                   value={endDate}
                   onChange={(newValue) => setEndDate(newValue)}
                   minDate={startDate || today}
-                  disabled={!startDate || !item.available}
+                  disabled={!startDate || notAvailable}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -209,7 +276,7 @@ export default function ItemDetail() {
                   }}
                 />
 
-                {startDate && endDate && item.available && (
+                {startDate && endDate && !notAvailable && (
                   <Box 
                     sx={{ 
                       mt: 2, 
@@ -231,17 +298,30 @@ export default function ItemDetail() {
                   variant="contained"
                   size="large"
                   fullWidth
-                  disabled={!startDate || !endDate || !item.available}
+                  disabled={!startDate || !endDate || notAvailable}
                   onClick={handleAddToCart}
                   sx={{ mt: 2 }}
                 >
-                  {item.available ? "Add to Cart" : "Not Available"}
+                  {notAvailable ? (isOwner ? "Your listing" : "Not Available") : "Add to Cart"}
                 </Button>
               </Box>
             </Paper>
           </Box>
         </Box>
       </Box>
+
+      <Dialog open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)}>
+        <DialogTitle>Login required</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Please login to rent this item.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={(e) => { e.stopPropagation(); setShowLoginPrompt(false); }}>Cancel</Button>
+          <Button variant="contained" onClick={(e) => { e.stopPropagation(); navigate("/login"); }}>Login</Button>
+        </DialogActions>
+      </Dialog>
     </LocalizationProvider>
   );
 }

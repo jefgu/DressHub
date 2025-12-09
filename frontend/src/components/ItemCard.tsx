@@ -1,4 +1,4 @@
-import { Card, CardMedia, CardContent, Typography, IconButton, Box } from "@mui/material";
+import { Card, CardMedia, CardContent, Typography, IconButton, Box, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useState, useEffect } from "react";
@@ -13,6 +13,7 @@ interface ItemCardProps {
 
 export default function ItemCard({ item, isWishlisted = false, onWishlistToggle }: ItemCardProps) {
   const [wishlisted, setWishlisted] = useState(isWishlisted);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,9 +34,8 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
         if (onWishlistToggle) onWishlistToggle(item._id, false);
       }
     } catch (error: any) {
-      // If unauthorized, redirect to login
       if (error.response?.status === 401) {
-        navigate("/login");
+        setShowLoginPrompt(true);
       } else {
         console.error("Error toggling wishlist:", error);
       }
@@ -67,32 +67,16 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
         />
 
         {/* Price badge */}
-        <Box sx={{ position: 'absolute', top: 10, left: 10 }}>
-          <Box sx={{ backgroundColor: 'rgba(25,118,210,0.95)', color: 'white', px: 1.25, py: 0.45, borderRadius: 1, fontWeight: 700, fontSize: '0.85rem' }}>
+        <Box sx={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 0.6 }}>
+          <Box sx={{ backgroundColor: 'rgba(25,118,210,0.95)', color: 'white', px: 1.25, py: 0.45, borderRadius: 1, fontWeight: 700, fontSize: '0.85rem', lineHeight: 1, width: 'max-content' }}>
             ${item.dailyPrice.toFixed(0)}/day
           </Box>
+          {!item.available && (
+            <Box sx={{ backgroundColor: 'rgba(244, 67, 54, 0.95)', color: 'white', px: 1.25, py: 0.45, borderRadius: 1, fontWeight: 700, fontSize: '0.85rem', lineHeight: 1, boxShadow: 3, width: 'max-content', textAlign: 'center' }}>
+              RENTED
+            </Box>
+          )}
         </Box>
-
-        {/* Availability Badge */}
-        {!item.available && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: 12,
-              right: 12,
-              backgroundColor: "rgba(244, 67, 54, 0.95)",
-              color: "white",
-              px: 2,
-              py: 0.6,
-              borderRadius: 1,
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              boxShadow: 3,
-            }}
-          >
-            RENTED
-          </Box>
-        )}
 
         {/* Wishlist Button */}
         <IconButton
@@ -125,6 +109,19 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
           {item.size && ` • Size ${item.size}`}
         </Typography>
       </CardContent>
+
+      <Dialog open={showLoginPrompt} onClose={() => setShowLoginPrompt(false)}>
+        <DialogTitle>Login required</DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Please login to add items to your wishlist.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={(e) => { e.stopPropagation(); setShowLoginPrompt(false); }}>Cancel</Button>
+          <Button variant="contained" onClick={(e) => { e.stopPropagation(); navigate("/login"); }}>Login</Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }

@@ -36,6 +36,7 @@ export default function Cart() {
   const fetchCart = useCallback(async () => {
     const res = await axiosClient.get("/cart");
     setCartItems(res.data);
+    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: res.data.length } }));
   }, []);
 
   useEffect(() => {
@@ -70,7 +71,11 @@ export default function Cart() {
   const handleRemoveItem = async (cartItemId: string) => {
     try {
       await axiosClient.delete(`/cart/${cartItemId}`);
-      setCartItems(prev => prev.filter(ci => ci._id !== cartItemId));
+      setCartItems(prev => {
+        const next = prev.filter(ci => ci._id !== cartItemId);
+        window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: next.length } }));
+        return next;
+      });
     } catch (error) {
       console.error("Error removing item:", error);
     }
@@ -82,7 +87,9 @@ export default function Cart() {
         cartItemIds: cartItems.map((ci) => ci._id),
       });
       alert("Checkout complete!");
-      fetchCart();
+      const res = await axiosClient.get("/cart");
+      setCartItems(res.data);
+      window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: res.data.length } }));
     } catch (error) {
       console.error("Checkout error:", error);
     }

@@ -5,12 +5,14 @@ import PersonIcon from "@mui/icons-material/Person";
 import HomeIcon from "@mui/icons-material/Home";
 import CheckroomIcon from '@mui/icons-material/Checkroom';
 import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axiosClient from "../api/axiosClient";
+import logo from "../assets/DressHubTitle.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -29,6 +31,22 @@ export default function Navbar() {
       }
     };
     checkAuth();
+    // re-check on route change (e.g., after login/signup navigation)
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        const detail = (e as CustomEvent<{ count: number }>).detail;
+        if (typeof detail?.count === "number") {
+          setCartCount(detail.count);
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("cart-updated", handler);
+    return () => window.removeEventListener("cart-updated", handler);
   }, []);
 
   const handleLogout = async () => {
@@ -44,25 +62,26 @@ export default function Navbar() {
   return (
     <AppBar position="sticky" elevation={1} sx={{ backgroundColor: '#fff', color: 'text.primary', borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
       <Toolbar sx={{ gap: 2 }}>
-        <Typography
-          variant="h6"
-          sx={{ flexGrow: 1, cursor: "pointer", fontWeight: 700 }}
-          onClick={() => navigate("/")}
-        >
-          DressHub
-        </Typography>
+        <Box sx={{ flexGrow: 1, cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => navigate("/")}>
+          <Box
+            component="img"
+            src={logo}
+            alt="DressHub"
+            sx={{ height: 36, width: "auto" }}
+          />
+        </Box>
 
         <Box display="flex" gap={1} alignItems="center">
           <IconButton aria-label="home" onClick={() => navigate("/") }>
             <HomeIcon />
           </IconButton>
 
-          <IconButton aria-label="upload item" onClick={() => navigate("/upload") }>
-            <CheckroomIcon />
-          </IconButton>
-
           {isAuthenticated ? (
             <>
+              <IconButton aria-label="upload item" onClick={() => navigate("/upload") }>
+                <CheckroomIcon />
+              </IconButton>
+
               <IconButton aria-label="wishlist" onClick={() => navigate("/wishlist") }>
                 <FavoriteIcon />
               </IconButton>

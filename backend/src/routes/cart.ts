@@ -21,6 +21,12 @@ router.post("/", validate(addToCartSchema), async (req, res) => {
 
   const item = await Item.findById(itemId);
   if (!item) return res.status(404).json({ message: "Item not found" });
+  if (String(item.owner) === userId) {
+    return res.status(400).json({ message: "You cannot rent your own listing" });
+  }
+  if (!item.available) {
+    return res.status(400).json({ message: "Item is currently unavailable" });
+  }
 
   const cartItem = await CartItem.create({
     user: userId,

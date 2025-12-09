@@ -71,6 +71,13 @@ router.get("/", validate(searchItemsSchema), async (req, res) => {
   res.json(items);
 });
 
+// Get items owned by current user
+router.get("/mine", authenticate, async (req, res) => {
+  const userId = (req as any).userId;
+  const items = await Item.find({ owner: userId });
+  res.json(items);
+});
+
 // Get single item by ID
 router.get("/:id", async (req, res) => {
   try {
@@ -82,6 +89,18 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch item" });
   }
+});
+
+// Delete an item (owner only)
+router.delete("/:id", authenticate, async (req, res) => {
+  const userId = (req as any).userId;
+  const item = await Item.findById(req.params.id);
+  if (!item) return res.status(404).json({ error: "Item not found" });
+  if (String(item.owner) !== userId) {
+    return res.status(403).json({ error: "Not authorized to delete this item" });
+  }
+  await item.deleteOne();
+  res.status(204).send();
 });
 
 export default router;
