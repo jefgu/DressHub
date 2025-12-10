@@ -104,7 +104,7 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
         </IconButton>
       </Box>
       <CardContent>
-        <Typography variant="subtitle1" fontWeight={600} noWrap>
+        <Typography component="h2" variant="subtitle1" fontWeight={600} noWrap>
           {item.title}
         </Typography>
         <Typography variant="body2" color="text.primary" fontWeight={700}>
