@@ -91,6 +91,7 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
         {/* Wishlist Button */}
         <IconButton
           onClick={toggleWishlist}
+          aria-label={wishlisted ? `Remove ${item.title} from wishlist` : `Add ${item.title} to wishlist`}
           sx={{ 
             position: "absolute", 
             top: 8, 

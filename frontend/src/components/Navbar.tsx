@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography, Button, IconButton, Badge, Box } from "@mui/material";
+import { AppBar, Toolbar, Button, IconButton, Badge, Box } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import PersonIcon from "@mui/icons-material/Person";
@@ -62,7 +62,21 @@ export default function Navbar() {
   return (
     <AppBar component="nav" role="navigation" position="sticky" elevation={1} sx={{ backgroundColor: '#fff', color: 'text.primary', borderBottom: (theme) => `1px solid ${theme.palette.divider}` }}>
       <Toolbar sx={{ gap: 2 }}>
-        <Box sx={{ flexGrow: 1, cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => navigate("/")}> 
+        <Box 
+          component="button"
+          onClick={() => navigate("/")}
+          aria-label="Go to home page"
+          sx={{ 
+            flexGrow: 1, 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center",
+            border: 'none',
+            background: 'transparent',
+            padding: 0,
+            '&:focus-visible': { outline: (theme) => `3px solid ${theme.palette.primary.main}`, outlineOffset: 4 }
+          }}
+        > 
           <Box
             component="img"
             src={logo}
