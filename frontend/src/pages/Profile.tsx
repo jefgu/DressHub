@@ -81,7 +81,6 @@ export default function Profile() {
   };
 
   const handleDeleteItem = async (itemId: string) => {
-    if (!confirm("Delete this listing? This cannot be undone.")) return;
     await axiosClient.delete(`/items/${itemId}`);
     setMyItems((prev) => prev.filter((i) => i._id !== itemId));
   };
