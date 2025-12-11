@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import axiosClient from "../api/axiosClient.ts";
-import { TextField, Box, MenuItem, Button, Paper, Skeleton, Typography } from "@mui/material";
+import { TextField, Box, MenuItem, Button, Paper, Skeleton, Typography, ToggleButtonGroup, ToggleButton } from "@mui/material";
 import Grid from "@mui/material/GridLegacy";
+import GridViewIcon from "@mui/icons-material/GridView";
+import ViewListIcon from "@mui/icons-material/ViewList";
 import ItemCard from "../components/ItemCard.tsx";
 
 interface Item {
@@ -26,6 +28,10 @@ export default function Home() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
   const [wishlistItemIds, setWishlistItemIds] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<"grid" | "list">(() => {
+    const saved = localStorage.getItem("itemViewMode");
+    return (saved === "grid" || saved === "list") ? saved : "grid";
+  });
 
   const fetchWishlist = async () => {
     try {
@@ -74,11 +80,34 @@ export default function Home() {
     });
   };
 
+  const handleViewModeChange = (_event: React.MouseEvent<HTMLElement>, newView: "grid" | "list" | null) => {
+    if (newView !== null) {
+      setViewMode(newView);
+      localStorage.setItem("itemViewMode", newView);
+    }
+  };
+
   return (
     <Box>
-      <Typography component="h1" variant="h4" sx={{ fontWeight: 600, mb: 3 }}>
-        Browse Items
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 600 }}>
+          Browse Items
+        </Typography>
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={handleViewModeChange}
+          aria-label="view mode"
+          size="small"
+        >
+          <ToggleButton value="grid" aria-label="grid view">
+            <GridViewIcon />
+          </ToggleButton>
+          <ToggleButton value="list" aria-label="list view">
+            <ViewListIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
       <Box mb={3}>
         <Paper elevation={2} sx={{ p: 2 }}>
           <Box display="flex" gap={2} flexWrap="wrap" alignItems="center">
@@ -126,22 +155,61 @@ export default function Home() {
         </Paper>
       </Box>
 
-      <Grid container spacing={3}>
-        {loading ? (
-          // show skeletons while loading
-          Array.from({ length: 6 }).map((_, i) => (
-            <Grid item xs={12} sm={6} md={4} key={`skeleton-${i}`}>
-              <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden' }}>
-                <Skeleton variant="rectangular" height={340} />
-                <Box sx={{ p: 2 }}>
-                  <Skeleton width="60%" />
-                  <Skeleton width="40%" />
+      {viewMode === "grid" ? (
+        <Grid container spacing={3}>
+          {loading ? (
+            // show skeletons while loading
+            Array.from({ length: 6 }).map((_, i) => (
+              <Grid item xs={12} sm={6} md={4} key={`skeleton-${i}`}>
+                <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+                  <Skeleton variant="rectangular" height={340} />
+                  <Box sx={{ p: 2 }}>
+                    <Skeleton width="60%" />
+                    <Skeleton width="40%" />
+                  </Box>
+                </Paper>
+              </Grid>
+            ))
+          ) : items.length === 0 ? (
+            <Grid item xs={12}>
+              <Paper elevation={0} sx={{ p: 6, textAlign: 'center', color: 'text.secondary' }}>
+                <Box mb={2}>
+                  <strong>No items found</strong>
                 </Box>
+                <Box mb={2}>Try adjusting your filters or search term.</Box>
+                <Button variant="outlined" onClick={() => { setQuery(''); setCategory(''); setSize(''); setGenderTarget(''); fetchItems(); }}>
+                  Clear filters
+                </Button>
               </Paper>
             </Grid>
-          ))
-        ) : items.length === 0 ? (
-          <Grid item xs={12}>
+          ) : (
+            items.map((item) => (
+              <Grid item xs={12} sm={6} md={4} key={item._id}>
+                <ItemCard 
+                  item={item} 
+                  isWishlisted={wishlistItemIds.has(item._id)}
+                  onWishlistToggle={handleWishlistToggle}
+                  variant="grid"
+                />
+              </Grid>
+            ))
+          )}
+        </Grid>
+      ) : (
+        <Box display="flex" flexDirection="column" gap={2}>
+          {loading ? (
+            // show skeletons while loading
+            Array.from({ length: 6 }).map((_, i) => (
+              <Paper key={`skeleton-${i}`} elevation={0} sx={{ borderRadius: 3, overflow: 'hidden', display: 'flex' }}>
+                <Skeleton variant="rectangular" width={200} height={200} />
+                <Box sx={{ p: 2, flex: 1 }}>
+                  <Skeleton width="60%" height={32} />
+                  <Skeleton width="40%" height={24} />
+                  <Skeleton width="50%" height={20} />
+                </Box>
+              </Paper>
+            ))
+          ) : items.length === 0 ? (
             <Paper elevation={0} sx={{ p: 6, textAlign: 'center', color: 'text.secondary' }}>
               <Box mb={2}>
                 <strong>No items found</strong>
@@ -151,19 +219,19 @@ export default function Home() {
                 Clear filters
               </Button>
             </Paper>
-          </Grid>
-        ) : (
-          items.map((item) => (
-            <Grid item xs={12} sm={6} md={4} key={item._id}>
+          ) : (
+            items.map((item) => (
               <ItemCard 
+                key={item._id}
                 item={item} 
                 isWishlisted={wishlistItemIds.has(item._id)}
                 onWishlistToggle={handleWishlistToggle}
+                variant="list"
               />
-            </Grid>
-          ))
-        )}
-      </Grid>
+            ))
+          )}
+        </Box>
+      )}
     </Box>
   );
 }

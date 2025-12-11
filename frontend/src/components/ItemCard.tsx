@@ -9,9 +9,10 @@ interface ItemCardProps {
   item: any;
   isWishlisted?: boolean;
   onWishlistToggle?: (itemId: string, newStatus: boolean) => void;
+  variant?: "grid" | "list";
 }
 
-export default function ItemCard({ item, isWishlisted = false, onWishlistToggle }: ItemCardProps) {
+export default function ItemCard({ item, isWishlisted = false, onWishlistToggle, variant = "grid" }: ItemCardProps) {
   const [wishlisted, setWishlisted] = useState(isWishlisted);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigate = useNavigate();
@@ -41,6 +42,121 @@ export default function ItemCard({ item, isWishlisted = false, onWishlistToggle 
       }
     }
   };
+
+  if (variant === "list") {
+    return (
+      <Card
+        sx={{
+          borderRadius: 3,
+          boxShadow: 2,
+          transition: "transform 180ms ease, box-shadow 180ms ease",
+          position: 'relative',
+          overflow: 'hidden',
+          '&:hover': { transform: 'translateY(-2px)', boxShadow: 4 },
+          display: 'flex',
+          flexDirection: 'row',
+        }}
+      >
+        <Box
+          component="button"
+          onClick={() => navigate(`/items/${item._id}`)}
+          aria-label={`View ${item.title} details`}
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            zIndex: 0,
+            padding: 0,
+            '&:focus-visible': { 
+              outline: (theme) => `3px solid ${theme.palette.primary.main}`, 
+              outlineOffset: -3,
+              borderRadius: 3,
+            },
+          }}
+        />
+        <Box 
+          position="relative" 
+          sx={{ 
+            width: 200, 
+            minWidth: 200,
+            height: 200,
+            backgroundColor: "#fafafa", 
+            pointerEvents: 'none', 
+            zIndex: 1, 
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
+        >
+          <CardMedia
+            component="img"
+            image={item.images?.[0] || "https://via.placeholder.com/400x600?text=No+image"}
+            alt={item.title}
+            sx={{ 
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              opacity: item.available ? 1 : 0.6,
+            }}
+          />
+
+          {/* Price badge */}
+          <Box sx={{ position: 'absolute', top: 10, left: 10, display: 'flex', alignItems: 'center', gap: 0.6, flexDirection: 'column' }}>
+            <Box sx={{ backgroundColor: 'rgba(25,118,210,0.95)', color: 'white', px: 1.25, py: 0.45, borderRadius: 1, fontWeight: 700, fontSize: '0.85rem', lineHeight: 1, width: 'max-content' }}>
+              ${item.dailyPrice.toFixed(0)}/day
+            </Box>
+            {!item.available && (
+              <Box sx={{ backgroundColor: 'rgba(244, 67, 54, 0.95)', color: 'white', px: 1.25, py: 0.45, borderRadius: 1, fontWeight: 700, fontSize: '0.85rem', lineHeight: 1, boxShadow: 3, width: 'max-content', textAlign: 'center' }}>
+                RENTED
+              </Box>
+            )}
+          </Box>
+
+          {/* Wishlist Button */}
+          <IconButton
+            onClick={toggleWishlist}
+            aria-label={wishlisted ? `Remove ${item.title} from wishlist` : `Add ${item.title} to wishlist`}
+            sx={{ 
+              position: "absolute", 
+              top: 8, 
+              right: 8, 
+              backgroundColor: "rgba(255,255,255,0.92)",
+              pointerEvents: 'auto',
+              zIndex: 2,
+              '&:hover': { backgroundColor: 'rgba(255,255,255,0.98)' },
+              '&:focus-visible': { boxShadow: (theme) => `0 0 0 3px ${theme.palette.primary.light}` }
+            }}
+          >
+            {wishlisted ? <FavoriteIcon color="error" /> : <FavoriteBorderIcon />}
+          </IconButton>
+        </Box>
+        <CardContent sx={{ pointerEvents: 'none', position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography component="h2" variant="h6" fontWeight={600} mb={1}>
+            {item.title}
+          </Typography>
+          <Typography variant="body1" color="text.primary" fontWeight={700} mb={1}>
+            ${item.dailyPrice.toFixed(2)} / day
+          </Typography>
+          {item.depositAmount && (
+            <Typography variant="body2" color="text.secondary" mb={1}>
+              Deposit: ${item.depositAmount.toFixed(2)}
+            </Typography>
+          )}
+          <Typography variant="body2" color="text.secondary" mb={1}>
+            {item.genderTarget && `${item.genderTarget.charAt(0).toUpperCase() + item.genderTarget.slice(1)}`}
+            {item.size && ` • Size ${item.size}`}
+            {item.category && ` • ${item.category.charAt(0).toUpperCase() + item.category.slice(1)}`}
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card

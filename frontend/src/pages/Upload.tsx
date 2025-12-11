@@ -56,9 +56,9 @@ export default function Upload() {
       return;
     }
 
-    const oversized = files.find((f) => f.size > 2 * 1024 * 1024);
+    const oversized = files.find((f) => f.size > 5 * 1024 * 1024);
     if (oversized) {
-      setError(`"${oversized.name}" is too large. Please keep images under 2 MB.`);
+      setError(`"${oversized.name}" is too large. Please keep images under 5 MB.`);
       return;
     }
 
