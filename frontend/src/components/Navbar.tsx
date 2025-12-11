@@ -19,15 +19,35 @@ export default function Navbar() {
   useEffect(() => {
     // Check auth status and cart count
     const checkAuth = async () => {
+      // Skip auth checks on public auth pages
+      if (location.pathname === "/login" || location.pathname === "/signup") {
+        setIsAuthenticated(false);
+        setCartCount(0);
+        return;
+      }
+
+      const hasAuthFlag = localStorage.getItem("dh_authed") === "1";
+      const authValid = localStorage.getItem("dh_auth_valid") === "1";
+      if (!hasAuthFlag || !authValid) {
+        setIsAuthenticated(false);
+        setCartCount(0);
+        return;
+      }
+
       try {
         await axiosClient.get("/users/me");
         setIsAuthenticated(true);
+        localStorage.setItem("dh_authed", "1");
+        localStorage.setItem("dh_auth_valid", "1");
         
         // Fetch cart count
         const cartRes = await axiosClient.get("/cart");
         setCartCount(cartRes.data?.length || 0);
       } catch {
         setIsAuthenticated(false);
+        setCartCount(0);
+        localStorage.removeItem("dh_authed");
+        localStorage.removeItem("dh_auth_valid");
       }
     };
     checkAuth();
@@ -53,6 +73,9 @@ export default function Navbar() {
     try {
       await axiosClient.post("/users/logout");
       setIsAuthenticated(false);
+      setCartCount(0);
+      localStorage.removeItem("dh_authed");
+      localStorage.removeItem("dh_auth_valid");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);

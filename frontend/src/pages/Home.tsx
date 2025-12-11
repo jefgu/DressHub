@@ -28,13 +28,23 @@ export default function Home() {
   const [wishlistItemIds, setWishlistItemIds] = useState<Set<string>>(new Set());
 
   const fetchWishlist = async () => {
+    const hasAuthFlag = localStorage.getItem("dh_authed") === "1";
+    const authValid = localStorage.getItem("dh_auth_valid") === "1";
+    if (!hasAuthFlag || !authValid) {
+      setWishlistItemIds(new Set());
+      return;
+    }
     try {
       const res = await axiosClient.get<WishlistItemResponse[]>("/wishlist");
       const itemIds = new Set<string>(
         res.data.map((wi) => wi.item?._id).filter((id): id is string => Boolean(id))
       );
       setWishlistItemIds(itemIds);
-    } catch {
+    } catch (err: any) {
+      if (err?.response?.status === 401) {
+        localStorage.removeItem("dh_authed");
+        localStorage.removeItem("dh_auth_valid");
+      }
       // User not authenticated or error fetching wishlist
       setWishlistItemIds(new Set());
     }

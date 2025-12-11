@@ -16,6 +16,8 @@ export default function Signup() {
     
     try {
       await axiosClient.post("/users/register", { email, password, name });
+      localStorage.setItem("dh_authed", "1");
+      localStorage.setItem("dh_auth_valid", "1");
       navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.error || "Signup failed. Please try again.");
