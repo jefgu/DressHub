@@ -31,8 +31,7 @@ With Dress Hub, users can rent out their clothes to others, giving their old gar
    npm run dev
    ```
 
-
-## Core Features (must-have by Dec 4)
+## Features
 	- Search Feature
         - Users can search for specific clothing items (e.g. “black tuxedo”) using keyword search and filters like category and size
 	
@@ -47,9 +46,4 @@ With Dress Hub, users can rent out their clothes to others, giving their old gar
 
     - Wishlist
 	    - Users can save items that they wish to rent later in the future
-
-## Stretch Goals (nice-to-have)
-	- Review / Rating System 
-    - Seller / Buyer Messaging
-    - Scheduling for specific clothes
 
