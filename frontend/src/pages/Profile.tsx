@@ -10,7 +10,6 @@ import {
   CardContent,
   CardActions,
   Divider,
-  Grid,
 } from "@mui/material";
 
 type ProfileForm = {
@@ -137,52 +136,60 @@ export default function Profile() {
         ) : myItems.length === 0 ? (
           <Typography color="text.secondary">You have no listings yet.</Typography>
         ) : (
-          <Grid container spacing={2}>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2,
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, minmax(0, 1fr))",
+                md: "repeat(3, minmax(0, 1fr))",
+              },
+            }}
+          >
             {myItems.map((item) => (
-              <Grid item xs={12} sm={6} md={4} key={item._id}>
-                <Card className="shadow-sm">
-                  <CardContent>
-                    <Typography variant="subtitle1" fontWeight={700} noWrap>
-                      {item.title}
+              <Card className="shadow-sm" key={item._id}>
+                <CardContent>
+                  <Typography variant="subtitle1" fontWeight={700} noWrap>
+                    {item.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {item.category && item.category.charAt(0).toUpperCase() + item.category.slice(1)}
+                    {item.genderTarget && ` • ${item.genderTarget}`}
+                    {item.size && ` • Size ${item.size}`}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mt={1}>
+                    ${item.dailyPrice.toFixed(2)} / day
+                  </Typography>
+                  {item.depositAmount && (
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Deposit: ${item.depositAmount.toFixed(2)}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {item.category && item.category.charAt(0).toUpperCase() + item.category.slice(1)}
-                      {item.genderTarget && ` • ${item.genderTarget}`}
-                      {item.size && ` • Size ${item.size}`}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" mt={1}>
-                      ${item.dailyPrice.toFixed(2)} / day
-                    </Typography>
-                    {item.depositAmount && (
-                      <Typography variant="caption" color="text.secondary" display="block">
-                        Deposit: ${item.depositAmount.toFixed(2)}
+                  )}
+                  <Box mt={1}>
+                    {item.available ? (
+                      <Typography variant="caption" color="success.main" fontWeight={700}>
+                        Available
+                      </Typography>
+                    ) : (
+                      <Typography variant="caption" color="error.main" fontWeight={700}>
+                        Currently Rented
                       </Typography>
                     )}
-                    <Box mt={1}>
-                      {item.available ? (
-                        <Typography variant="caption" color="success.main" fontWeight={700}>
-                          Available
-                        </Typography>
-                      ) : (
-                        <Typography variant="caption" color="error.main" fontWeight={700}>
-                          Currently Rented
-                        </Typography>
-                      )}
-                    </Box>
-                  </CardContent>
-                  <CardActions>
-                    <Button
-                      color="error"
-                      onClick={() => handleDeleteItem(item._id)}
-                      size="small"
-                    >
-                      Delete Listing
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
+                  </Box>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    color="error"
+                    onClick={() => handleDeleteItem(item._id)}
+                    size="small"
+                  >
+                    Delete Listing
+                  </Button>
+                </CardActions>
+              </Card>
             ))}
-          </Grid>
+          </Box>
         )}
       </Box>
     </Box>

@@ -1,11 +1,11 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import {
   Box,
   Paper,
   TextField,
   Typography,
   Button,
-  Grid,
   Alert,
   Stack,
   List,
@@ -129,82 +129,88 @@ export default function Upload() {
           />
 
           {/* Category + Size */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Size"
-                value={size}
-                onChange={(e) => setSize(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-          </Grid>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2,
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
+            }}
+          >
+            <TextField
+              label="Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Size"
+              value={size}
+              onChange={(e) => setSize(e.target.value)}
+              fullWidth
+            />
+          </Box>
 
           {/* Gender target (select) + Condition */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                label=""
-                value={genderTarget}
-                onChange={(e) => setGenderTarget(e.target.value)}
-                fullWidth
-                size="medium"
-                SelectProps={{
-                  displayEmpty: true,
-                }}
-              >
-                <MenuItem value="">
-                  <em>Select Gender</em>
-                </MenuItem>
-                <MenuItem value="Female">Female</MenuItem>
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Unisex">Unisex</MenuItem>
-              </TextField>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2,
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
+            }}
+          >
+            <TextField
+              select
+              label=""
+              value={genderTarget}
+              onChange={(e) => setGenderTarget(e.target.value)}
+              fullWidth
+              size="medium"
+              SelectProps={{
+                displayEmpty: true,
+              }}
+            >
+              <MenuItem value="">
+                <em>Select Gender</em>
+              </MenuItem>
+              <MenuItem value="Female">Female</MenuItem>
+              <MenuItem value="Male">Male</MenuItem>
+              <MenuItem value="Unisex">Unisex</MenuItem>
+            </TextField>
 
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Condition"
-                value={condition}
-                onChange={(e) => setCondition(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-          </Grid>
+            <TextField
+              label="Condition"
+              value={condition}
+              onChange={(e) => setCondition(e.target.value)}
+              fullWidth
+            />
+          </Box>
 
           {/* Prices */}
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Daily price"
-                type="number"
-                value={dailyPrice}
-                onChange={(e) => setDailyPrice(e.target.value)}
-                required
-                fullWidth
-                inputProps={{ min: 0, step: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Deposit amount"
-                type="number"
-                value={depositAmount}
-                onChange={(e) => setDepositAmount(e.target.value)}
-                fullWidth
-                inputProps={{ min: 0, step: 1 }}
-              />
-            </Grid>
-          </Grid>
+          <Box
+            sx={{
+              display: "grid",
+              gap: 2,
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))" },
+            }}
+          >
+            <TextField
+              label="Daily price"
+              type="number"
+              value={dailyPrice}
+              onChange={(e) => setDailyPrice(e.target.value)}
+              required
+              fullWidth
+              inputProps={{ min: 0, step: 1 }}
+            />
+            <TextField
+              label="Deposit amount"
+              type="number"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              fullWidth
+              inputProps={{ min: 0, step: 1 }}
+            />
+          </Box>
 
           {/* Images */}
           <Box>

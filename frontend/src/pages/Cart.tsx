@@ -10,6 +10,8 @@ import {
   IconButton,
   Divider,
   Paper,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -32,6 +34,8 @@ interface CartItem {
 
 export default function Cart() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [snackKey, setSnackKey] = useState(0); // force reopen
 
   const fetchCart = useCallback(async () => {
     const res = await axiosClient.get("/cart");
@@ -86,7 +90,8 @@ export default function Cart() {
       await axiosClient.post("/rentals/checkout", {
         cartItemIds: cartItems.map((ci) => ci._id),
       });
-      alert("Checkout complete!");
+      setSnackKey((k) => k + 1);
+      setShowSuccess(true);
       const res = await axiosClient.get("/cart");
       setCartItems(res.data);
       window.dispatchEvent(new CustomEvent("cart-updated", { detail: { count: res.data.length } }));
@@ -104,6 +109,16 @@ export default function Cart() {
         <Typography color="text.secondary">
           Your cart is empty. Browse items and add them to start renting!
         </Typography>
+        <Snackbar
+          open={showSuccess}
+          autoHideDuration={4000}
+          onClose={() => setShowSuccess(false)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert onClose={() => setShowSuccess(false)} severity="success" sx={{ width: '100%' }}>
+            Checkout complete!
+          </Alert>
+        </Snackbar>
       </Box>
     );
   }
@@ -208,6 +223,17 @@ export default function Cart() {
           Proceed to Checkout
         </Button>
       </Paper>
+      <Snackbar
+        key={snackKey}
+        open={showSuccess}
+        autoHideDuration={4000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={() => setShowSuccess(false)} severity="success" sx={{ width: '100%' }}>
+          Checkout complete!
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

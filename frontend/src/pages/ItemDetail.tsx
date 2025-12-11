@@ -49,6 +49,12 @@ export default function ItemDetail() {
     };
     const fetchMe = async () => {
       try {
+        const hasAuthFlag = localStorage.getItem("dh_authed") === "1";
+        const authValid = localStorage.getItem("dh_auth_valid") === "1";
+        if (!hasAuthFlag || !authValid) {
+          setCurrentUserId("");
+          return;
+        }
         const res = await axiosClient.get("/users/me");
         setCurrentUserId(res.data._id || res.data.id || "");
       } catch {
@@ -56,6 +62,12 @@ export default function ItemDetail() {
       }
     };
     const fetchWishlist = async () => {
+      const hasAuthFlag = localStorage.getItem("dh_authed") === "1";
+      const authValid = localStorage.getItem("dh_auth_valid") === "1";
+      if (!hasAuthFlag || !authValid) {
+        setWishlisted(false);
+        return;
+      }
       try {
         const res = await axiosClient.get("/wishlist");
         const exists = res.data.some((wi: any) => wi.item?._id === id);

@@ -15,6 +15,8 @@ export default function Login() {
     
     try {
       await axiosClient.post("/users/login", { email, password });
+      localStorage.setItem("dh_authed", "1");
+      localStorage.setItem("dh_auth_valid", "1");
       navigate("/");
     } catch (err: any) {
       setError(err.response?.data?.error || "Login failed. Please try again.");
